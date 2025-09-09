@@ -114,11 +114,33 @@ def handler(job):
     else:
         image_path = save_data_if_base64(image_input, task_id, "input_image.jpg")
     
-
-    prompt = load_workflow("/wan22.json")
-
+    # LoRA 설정 확인 - 배열로 받아서 처리
+    lora_pairs = job_input.get("lora_pairs", [])
+    
+    # LoRA 개수에 따라 적절한 워크플로우 파일 선택
+    lora_count = len(lora_pairs)
+    if lora_count == 0:
+        workflow_file = "/wan22_nolora.json"
+        logger.info("Using no LoRA workflow")
+    elif lora_count == 1:
+        workflow_file = "/wan22_1lora.json"
+        logger.info("Using 1 LoRA pair workflow")
+    elif lora_count == 2:
+        workflow_file = "/wan22_2lora.json"
+        logger.info("Using 2 LoRA pairs workflow")
+    elif lora_count == 3:
+        workflow_file = "/wan22_3lora.json"
+        logger.info("Using 3 LoRA pairs workflow")
+    else:
+        logger.warning(f"LoRA 개수가 {lora_count}개입니다. 최대 3개까지만 지원됩니다. 3개로 제한합니다.")
+        lora_count = 3
+        workflow_file = "/wan22_3lora.json"
+        lora_pairs = lora_pairs[:3]  # 처음 3개만 사용
+    
+    prompt = load_workflow(workflow_file)
     
     length = job_input.get("length", 81)
+    steps = job_input.get("steps", 10)
 
     prompt["260"]["inputs"]["image"] = image_path
     prompt["303"]["inputs"]["value"] = length
@@ -129,6 +151,54 @@ def handler(job):
     prompt["297"]["inputs"]["value"] = job_input["height"]
     prompt["332"]["inputs"]["width"] = job_input["width"] * 2
     prompt["332"]["inputs"]["height"] = job_input["height"] * 2
+    
+    # step 설정 적용
+    if "834" in prompt:
+        prompt["834"]["inputs"]["steps"] = steps
+        logger.info(f"Steps set to: {steps}")
+    
+    # LoRA 설정 적용
+    if lora_count > 0:
+        # LoRA 노드 ID 매핑 (각 워크플로우에서 LoRA 노드 ID가 다름)
+        lora_node_mapping = {
+            1: {
+                "high": ["283"],
+                "low": ["284"]
+            },
+            2: {
+                "high": ["283", "339"],
+                "low": ["284", "337"]
+            },
+            3: {
+                "high": ["283", "339", "340"],
+                "low": ["284", "337", "338"]
+            }
+        }
+        
+        current_mapping = lora_node_mapping[lora_count]
+        
+        for i, lora_pair in enumerate(lora_pairs):
+            if i < lora_count:
+                lora_high = lora_pair.get("high")
+                lora_low = lora_pair.get("low")
+                lora_high_weight = lora_pair.get("high_weight", 1.0)
+                lora_low_weight = lora_pair.get("low_weight", 1.0)
+                
+                # HIGH LoRA 설정
+                if i < len(current_mapping["high"]):
+                    high_node_id = current_mapping["high"][i]
+                    if high_node_id in prompt and lora_high:
+                        prompt[high_node_id]["inputs"]["lora_name"] = lora_high
+                        prompt[high_node_id]["inputs"]["strength_model"] = lora_high_weight
+                        logger.info(f"LoRA {i+1} HIGH applied: {lora_high} with weight {lora_high_weight}")
+                
+                # LOW LoRA 설정
+                if i < len(current_mapping["low"]):
+                    low_node_id = current_mapping["low"][i]
+                    if low_node_id in prompt and lora_low:
+                        prompt[low_node_id]["inputs"]["lora_name"] = lora_low
+                        prompt[low_node_id]["inputs"]["strength_model"] = lora_low_weight
+                        logger.info(f"LoRA {i+1} LOW applied: {lora_low} with weight {lora_low_weight}")
 
     ws_url = f"ws://{server_address}:8188/ws?clientId={client_id}"
     logger.info(f"Connecting to WebSocket: {ws_url}")
