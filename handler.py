@@ -143,14 +143,12 @@ def handler(job):
     steps = job_input.get("steps", 10)
 
     prompt["260"]["inputs"]["image"] = image_path
-    prompt["303"]["inputs"]["value"] = length
+    prompt["846"]["inputs"]["value"] = length
     prompt["246"]["inputs"]["value"] = job_input["prompt"]
-    prompt["396"]["inputs"]["noise_seed"] = job_input["seed"]
-    # prompt["26"]["inputs"]["guidance"] = job_input["guidance"]
-    prompt["296"]["inputs"]["value"] = job_input["width"]
-    prompt["297"]["inputs"]["value"] = job_input["height"]
-    prompt["332"]["inputs"]["width"] = job_input["width"] * 2
-    prompt["332"]["inputs"]["height"] = job_input["height"] * 2
+    prompt["835"]["inputs"]["noise_seed"] = job_input["seed"]
+    prompt["830"]["inputs"]["cfg"] = job_input["cfg"]
+    prompt["849"]["inputs"]["value"] = job_input["width"]
+    prompt["848"]["inputs"]["value"] = job_input["height"]
     
     # step 설정 적용
     if "834" in prompt:
@@ -162,16 +160,16 @@ def handler(job):
         # LoRA 노드 ID 매핑 (각 워크플로우에서 LoRA 노드 ID가 다름)
         lora_node_mapping = {
             1: {
-                "high": ["283"],
-                "low": ["284"]
+                "high": ["282"],
+                "low": ["286"]
             },
             2: {
-                "high": ["283", "339"],
-                "low": ["284", "337"]
+                "high": ["282", "339"],
+                "low": ["286", "337"]
             },
             3: {
-                "high": ["283", "339", "340"],
-                "low": ["284", "337", "338"]
+                "high": ["282", "339", "340"],
+                "low": ["286", "337", "338"]
             }
         }
         
