@@ -18,12 +18,8 @@ jobs:
           curl -o /usr/local/bin/cog -L "https://github.com/replicate/cog/releases/latest/download/cog_$(uname -s)_$(uname -m)"
           chmod +x /usr/local/bin/cog
 
-      - name: Login to Replicate
+      - name: Push to Replicate
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
-        run: |
-          echo "$REPLICATE_API_TOKEN" | cog login --token-stdin
-
-      - name: Push to Replicate
         run: |
           cog push r8.im/hzeyuan/wan-model
