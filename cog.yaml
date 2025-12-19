@@ -2,10 +2,6 @@ build:
   gpu: true
   cuda: "12.1"
   python_version: "3.11"
-
-# 指定 GPU 类型 - A40 (48GB) 或 A100 (40GB/80GB)
-predict:
-  gpu: a40-large  # 可选: a40-large, a100-40gb, a100-80gb
   system_packages:
     - "git"
   python_packages:
@@ -20,4 +16,14 @@ predict:
   run:
     # 可选: 预下载模型(注释掉则在首次运行时下载)
     # - huggingface-cli download Phr00t/WAN2.2-14B-Rapid-AllInOne --include "Mega-v12/*" --local-dir ./model_cache || true
-predict: "predict.py:Predictor"
+
+# 硬件配置 - 14B 模型需要大显存 GPU
+predict:
+  gpu: a40-large  # A40 48GB - 推荐 | 可选: a100-40gb, a100-80gb
+  # 可用的 GPU 选项:
+  # - t4: 16GB (太小,不适合 14B 模型)
+  # - a40-small: 24GB (可能不够)
+  # - a40-large: 48GB (推荐,性价比高)
+  # - a100-40gb: 40GB (性能好但贵)
+  # - a100-80gb: 80GB (最强但最贵)
+  predictor: "predict.py:Predictor"
