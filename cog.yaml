@@ -17,13 +17,12 @@ build:
     # 可选: 预下载模型(注释掉则在首次运行时下载)
     # - huggingface-cli download Phr00t/WAN2.2-14B-Rapid-AllInOne --include "Mega-v12/*" --local-dir ./model_cache || true
 
-# 硬件配置 - 14B 模型需要大显存 GPU
-predict:
-  gpu: a40-large  # A40 48GB - 推荐 | 可选: a100-40gb, a100-80gb
-  # 可用的 GPU 选项:
-  # - t4: 16GB (太小,不适合 14B 模型)
-  # - a40-small: 24GB (可能不够)
-  # - a40-large: 48GB (推荐,性价比高)
-  # - a100-40gb: 40GB (性能好但贵)
-  # - a100-80gb: 80GB (最强但最贵)
-  predictor: "predict.py:Predictor"
+predict: "predict.py:Predictor"
+
+# GPU 硬件选择在 Replicate 网站配置
+# 14B 模型需要至少 24GB 显存,推荐:
+# - A40 (48GB) - 性价比高 ~$0.001400/sec
+# - A100-40GB - 性能好 ~$0.002300/sec
+# - A100-80GB - 大显存 ~$0.003750/sec
+# - H100 (80GB) - 最快 ~$0.004400/sec
+# - 8x H100 - 多GPU ~$0.012200/sec
