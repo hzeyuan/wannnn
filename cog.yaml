@@ -2,6 +2,10 @@ build:
   gpu: true
   cuda: "12.1"
   python_version: "3.11"
+
+# 指定 GPU 类型 - A40 (48GB) 或 A100 (40GB/80GB)
+predict:
+  gpu: a40-large  # 可选: a40-large, a100-40gb, a100-80gb
   system_packages:
     - "git"
   python_packages:
