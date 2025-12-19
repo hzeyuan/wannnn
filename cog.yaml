@@ -1,0 +1,19 @@
+build:
+  gpu: true
+  cuda: "12.1"
+  python_version: "3.11"
+  system_packages:
+    - "git"
+  python_packages:
+    - "torch==2.1.0"
+    - "transformers>=4.37.0"
+    - "accelerate"
+    - "sentencepiece"
+    - "protobuf"
+    - "peft>=0.7.0"
+    - "bitsandbytes"
+    - "huggingface_hub[cli]"
+  run:
+    # 可选: 预下载模型(注释掉则在首次运行时下载)
+    # - huggingface-cli download Phr00t/WAN2.2-14B-Rapid-AllInOne --include "Mega-v12/*" --local-dir ./model_cache || true
+predict: "predict.py:Predictor"
