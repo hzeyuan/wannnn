@@ -53,7 +53,12 @@ RUN cd /ComfyUI/custom_nodes && \
     git clone --depth=1 https://github.com/kijai/ComfyUI-WanVideoWrapper && \
     cd ComfyUI-WanVideoWrapper && \
     pip install --no-cache-dir -r requirements.txt && \
-    rm -rf .git
+    rm -rf .git && \
+    cd .. && \
+    # Final cleanup
+    find /ComfyUI/custom_nodes -type f -name "*.pyc" -delete && \
+    find /ComfyUI/custom_nodes -type d -name "__pycache__" -delete && \
+    find /ComfyUI/custom_nodes -type d -name ".git" -exec rm -rf {} + 2>/dev/null || true
 
 # Create model directories (models will be loaded from Network Volume)
 RUN mkdir -p /ComfyUI/models/vae/split_files/vae && \

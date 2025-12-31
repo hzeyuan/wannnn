@@ -28,7 +28,7 @@ jobs:
       packages: write
 
     steps:
-      - name: Free up disk space
+      - name: Maximize disk space
         run: |
           echo "=== Before cleanup ==="
           df -h
@@ -37,7 +37,12 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker system prune -af
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/swift
+          sudo apt-get clean
+          sudo docker system prune -af --volumes
           echo "=== After cleanup ==="
           df -h
 
@@ -73,6 +78,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+          provenance: false
+          sbom: false
 
       - name: Summary
         run: |
