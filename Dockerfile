@@ -1,48 +1,59 @@
 # Use specific version of nvidia cuda image
 FROM wlsdml1114/multitalk-base:1.4 as runtime
 
-# Install dependencies for model download
-RUN pip install -U "huggingface_hub[hf_transfer]"
-RUN pip install runpod websocket-client
+# Install dependencies for model download (using --no-cache-dir to save space)
+RUN pip install --no-cache-dir -U "huggingface_hub[hf_transfer]" runpod websocket-client
 
 WORKDIR /
 
-RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
+# Clone ComfyUI and install requirements in one layer
+RUN git clone --depth=1 https://github.com/comfyanonymous/ComfyUI.git && \
     cd /ComfyUI && \
-    pip install -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf /ComfyUI/.git
 
+# Clone and install all custom nodes in one layer to reduce image size
 RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/Comfy-Org/ComfyUI-Manager.git && \
+    # ComfyUI-Manager
+    git clone --depth=1 https://github.com/Comfy-Org/ComfyUI-Manager.git && \
     cd ComfyUI-Manager && \
-    pip install -r requirements.txt
-
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/city96/ComfyUI-GGUF && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf .git && \
+    cd .. && \
+    # ComfyUI-GGUF
+    git clone --depth=1 https://github.com/city96/ComfyUI-GGUF && \
     cd ComfyUI-GGUF && \
-    pip install -r requirements.txt
-
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/kijai/ComfyUI-KJNodes && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf .git && \
+    cd .. && \
+    # ComfyUI-KJNodes
+    git clone --depth=1 https://github.com/kijai/ComfyUI-KJNodes && \
     cd ComfyUI-KJNodes && \
-    pip install -r requirements.txt
-
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf .git && \
+    cd .. && \
+    # ComfyUI-VideoHelperSuite
+    git clone --depth=1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite && \
     cd ComfyUI-VideoHelperSuite && \
-    pip install -r requirements.txt
-    
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/kael558/ComfyUI-GGUF-FantasyTalking && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf .git && \
+    cd .. && \
+    # ComfyUI-GGUF-FantasyTalking
+    git clone --depth=1 https://github.com/kael558/ComfyUI-GGUF-FantasyTalking && \
     cd ComfyUI-GGUF-FantasyTalking && \
-    pip install -r requirements.txt
-    
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/orssorbit/ComfyUI-wanBlockswap
-
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/kijai/ComfyUI-WanVideoWrapper && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf .git && \
+    cd .. && \
+    # ComfyUI-wanBlockswap
+    git clone --depth=1 https://github.com/orssorbit/ComfyUI-wanBlockswap && \
+    cd ComfyUI-wanBlockswap && \
+    rm -rf .git && \
+    cd .. && \
+    # ComfyUI-WanVideoWrapper
+    git clone --depth=1 https://github.com/kijai/ComfyUI-WanVideoWrapper && \
     cd ComfyUI-WanVideoWrapper && \
-    pip install -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf .git
 
 # Create model directories (models will be loaded from Network Volume)
 RUN mkdir -p /ComfyUI/models/vae/split_files/vae && \

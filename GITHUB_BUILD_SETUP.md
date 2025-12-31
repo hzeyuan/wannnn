@@ -156,31 +156,43 @@ git push origin main
 
 | 阶段 | 预计时间 |
 |-----|---------|
+| 清理磁盘空间 | 30-60 秒 |
 | Checkout 代码 | 10-20 秒 |
 | 设置 Docker Buildx | 10-20 秒 |
 | 登录 GitHub Registry | 5 秒 |
 | 构建镜像 | 5-8 分钟 |
 | 推送镜像 | 1-2 分钟 |
-| **总计** | **6-10 分钟** |
+| **总计** | **7-11 分钟** |
 
 ---
 
 ## 🐛 故障排查
 
-### Q1: "Package not found" 或 "Pull access denied"
+### Q1: "No space left on device" (磁盘空间不足)
+**原因**：GitHub Actions runner 磁盘空间不足（默认约14GB）
+**解决**：已通过以下优化解决：
+- ✅ 添加构建前磁盘清理步骤（删除 .NET, Android SDK 等）
+- ✅ 使用 `--depth=1` 浅克隆 git 仓库
+- ✅ 使用 `--no-cache-dir` 避免 pip 缓存
+- ✅ 克隆后立即删除 `.git` 目录
+- ✅ 合并多个 RUN 命令减少 Docker 层数
+
+**效果**：可释放约 10-12 GB 磁盘空间
+
+### Q2: "Package not found" 或 "Pull access denied"
 **原因**：镜像还未设置为公开
 **解决**：
 1. 进入 GitHub → 仓库 → Packages
 2. 点击镜像
 3. Package settings → Change visibility → Public
 
-### Q2: "Workflow not triggered"
+### Q3: "Workflow not triggered"
 **原因**：修改的文件不在触发路径中
 **解决**：
 - 手动触发（Actions → Run workflow）
 - 或修改核心文件（Dockerfile, handler 等）
 
-### Q3: "Build failed"
+### Q4: "Build failed"
 **原因**：Dockerfile 有错误
 **解决**：
 1. 查看 GitHub Actions 日志
