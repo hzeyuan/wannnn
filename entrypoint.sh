@@ -27,6 +27,7 @@ if [ $wait_count -ge $max_wait ]; then
 fi
 
 # Start the handler in the foreground
-# 이 스크립트가 컨테이너의 메인 프로세스가 됩니다.
-echo "Starting the handler..."
-exec python handler.py
+# Use HANDLER_FILE environment variable to select which handler to run
+HANDLER_FILE=${HANDLER_FILE:-handler.py}
+echo "Starting the handler: $HANDLER_FILE"
+exec python $HANDLER_FILE

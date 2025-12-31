@@ -3,20 +3,41 @@
 
 comfyui:
     base_path: /ComfyUI/
-    # You can use is_default to mark that these folders should be listed first, and used as the default dirs for eg downloads
+    # All models will be loaded from RunPod Network Volume
     is_default: true
-    checkpoints: models/checkpoints/
-    clip: models/clip/
-    clip_vision: models/clip_vision/
+    checkpoints: |
+        models/checkpoints/
+        /runpod-volume/checkpoints/
+    clip: |
+        models/clip/
+        /runpod-volume/clip/
+    clip_vision: |
+        models/clip_vision/
+        /runpod-volume/clip_vision/
     configs: models/configs/
-    controlnet: models/controlnet/
+    controlnet: |
+        models/controlnet/
+        /runpod-volume/controlnet/
     diffusion_models: |
-        models/diffusion_models
-        models/unet
         /runpod-volume/models/
-    embeddings: models/embeddings/
+        /runpod-volume/models/NSFW
+        models/diffusion_models
+        models/diffusion_models/NSFW
+        models/unet
+    embeddings: |
+        models/embeddings/
+        /runpod-volume/embeddings/
     loras: |
-        models/loras/
         /runpod-volume/loras/
-    upscale_models: models/upscale_models/
-    vae: models/vae/
+        models/loras/
+    upscale_models: |
+        models/upscale_models/
+        /runpod-volume/upscale_models/
+    vae: |
+        /runpod-volume/vae/split_files/vae
+        /runpod-volume/vae/
+        models/vae/split_files/vae
+        models/vae
+    text_encoders: |
+        /runpod-volume/text_encoders/
+        models/text_encoders/
